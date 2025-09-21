@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PatentFlow</title>
+  <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+  <h1>Patent Submission</h1>
+
+  <form id="patentForm">
+    <label>Problem:</label><br>
+    <textarea id="problem"></textarea><br><br>
+
+    <label>Solution:</label><br>
+    <textarea id="solution"></textarea><br><br>
+
+    <button type="button" onclick="submitPatent()">Submit</button>
+    <button type="button" onclick="manualReview()">Request Manual Review</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script>
+    // 🔁 Auto-save every 30 seconds
+    setInterval(() => autosave(), 30000);
+
+    function autosave() {
+      const data = {
+        problem: document.getElementById('problem').value,
+        solution: document.getElementById('solution').value
+      };
+      localStorage.setItem('patentDraft', JSON.stringify(data));
+      document.getElementById('status').innerText = "Draft saved locally.";
+    }
+
+    // 🔁 Resume draft on load
+    window.onload = () => {
+      const draft = localStorage.getItem('patentDraft');
+      if (draft) {
+        const data = JSON.parse(draft);
+        document.getElementById('problem').value = data.problem;
+        document.getElementById('solution').value = data.solution;
+        document.getElementById('status').innerText = "Draft loaded.";
+      }
+    };
+
+    // 🔁 Dual AI Analysis (mocked)
+    async function dualAnalysis(input) {
+      const result1 = await mockAI("GPT", input);
+      const result2 = await mockAI("Claude", input);
+      if (result1 !== result2) {
+        alert("Discrepancy detected. Manual review recommended.");
+      }
+    }
+
+    function mockAI(model, input) {
+      return new Promise(resolve => {
+        setTimeout(() => resolve(model + ": " + input), 1000);
+      });
+    }
+
+    // 🔁 Encrypt data before submission
+    function encryptData(data) {
+      const key = CryptoJS.enc.Utf8.parse('your-secret-key');
+      return CryptoJS.AES.encrypt(JSON.stringify(data), key).toString();
+    }
+
+    // 🔁 Submit patent
+    function submitPatent() {
+      const data = {
+        problem: document.getElementById('problem').value,
+        solution: document.getElementById('solution').value
+      };
+      const encrypted = encryptData(data);
+      dualAnalysis(data.problem + " " + data.solution);
+      sendConfirmation("user@example.com", "+1234567890");
+      document.getElementById('status').innerText = "Submission complete.";
+      console.log("Encrypted submission:", encrypted);
+    }
+
+    // 🔁 Manual review fallback
+    function manualReview() {
+      alert("Manual review request sent.");
+    }
+
+    // 🔁 Multi-channel confirmation (mocked)
+    function sendConfirmation(email, phone) {
+      console.log("Email sent to:", email);
+      console.log("SMS sent to:", phone);
+      alert("Confirmation sent via email and SMS.");
+    }
+  </script>
+</body>
+</html>
